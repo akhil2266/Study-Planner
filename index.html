@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Study Planner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR (navigation) ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">📚 <span>Study Planner</span></div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="dashboard">🏠 Dashboard</button>
+      <button class="nav-btn" data-view="subjects">📖 Subjects &amp; Exams</button>
+      <button class="nav-btn" data-view="tasks">✅ Tasks</button>
+      <button class="nav-btn" data-view="schedule">🗓️ Schedule</button>
+      <button class="nav-btn" data-view="focus">⏱️ Focus Timer</button>
+    </nav>
+
+    <div class="side-foot">
+      <button class="btn btn-ghost" id="exportBtn">⬇ Backup data</button>
+      <button class="btn btn-ghost" id="importBtn">⬆ Restore data</button>
+      <input type="file" id="importFile" accept="application/json" hidden />
+      <p class="muted small">Your data is saved in this browser only.</p>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN AREA ============ -->
+  <div class="main">
+
+    <!-- Top bar with notification bell -->
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+      <div class="title-wrap">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p class="muted" id="pageSub"></p>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Dark / light mode">🌙</button>
+
+        <div class="bell-wrap">
+          <button class="icon-btn" id="bellBtn" aria-label="Notifications" aria-expanded="false">
+            🔔 <span class="badge" id="badge" hidden>0</span>
+          </button>
+
+          <!-- Notification menu -->
+          <div class="notif-panel" id="notifPanel" hidden>
+            <div class="notif-head">
+              <strong>Notifications</strong>
+              <span class="muted small" id="notifDate"></span>
+            </div>
+            <div id="notifBody"></div>
+            <div class="notif-foot">
+              <button class="btn btn-small" id="enableAlerts">Enable alerts</button>
+              <span class="muted small" id="alertStatus"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="view active" id="view-dashboard">
+
+        <div class="card quote-card">
+          <p class="quote-label">💡 Motivation for today</p>
+          <p class="quote-text" id="quoteText"></p>
+          <button class="btn btn-small btn-light" id="newQuote">Another one</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><span class="stat-num" id="statTasks">0%</span><span class="stat-label">Tasks completed</span></div>
+          <div class="stat"><span class="stat-num" id="statToday">0</span><span class="stat-label">To do today</span></div>
+          <div class="stat"><span class="stat-num" id="statExam">–</span><span class="stat-label">Next exam</span></div>
+          <div class="stat"><span class="stat-num" id="statFocus">0</span><span class="stat-label">Focus sessions today</span></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>✅ Do today</h3>
+            <ul class="list" id="dashTasks"></ul>
+          </div>
+          <div class="card">
+            <h3>🗓️ Today's study plan</h3>
+            <ul class="list" id="dashBlocks"></ul>
+          </div>
+          <div class="card">
+            <h3>🎯 Exam countdown</h3>
+            <ul class="list" id="examList"></ul>
+          </div>
+          <div class="card">
+            <h3>📈 Progress by subject</h3>
+            <div id="progressList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SUBJECTS ============ -->
+      <section class="view" id="view-subjects">
+        <div class="card">
+          <h3>Add a subject</h3>
+          <form class="form-row" id="subjectForm">
+            <label>Subject name
+              <input id="sName" type="text" placeholder="e.g. Machine Learning" required maxlength="60" />
+            </label>
+            <label>Exam date
+              <input id="sDate" type="date" />
+            </label>
+            <label>Priority
+              <select id="sPrio">
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+            <label>Colour
+              <input id="sColor" type="color" value="#4f46e5" />
+            </label>
+            <button class="btn" type="submit">Add subject</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Your subjects</h3>
+          <ul class="list" id="subjectList"></ul>
+        </div>
+      </section>
+
+      <!-- ============ TASKS ============ -->
+      <section class="view" id="view-tasks">
+        <div class="card">
+          <h3>Add a task</h3>
+          <form class="form-row" id="taskForm">
+            <label class="grow">Task
+              <input id="tTitle" type="text" placeholder="e.g. Finish Unit 3 notes" required maxlength="120" />
+            </label>
+            <label>Subject
+              <select id="tSubject"></select>
+            </label>
+            <label>Due date
+              <input id="tDue" type="date" />
+            </label>
+            <label>Priority
+              <select id="tPrio">
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+            <button class="btn" type="submit">Add task</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="today">Today</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="done">Completed</button>
+          </div>
+          <ul class="list" id="taskList"></ul>
+        </div>
+      </section>
+
+      <!-- ============ SCHEDULE ============ -->
+      <section class="view" id="view-schedule">
+        <div class="grid-2">
+          <div class="card">
+            <h3>Add a study block</h3>
+            <form class="form-row" id="blockForm">
+              <label>Day
+                <select id="bDay">
+                  <option value="1">Monday</option><option value="2">Tuesday</option>
+                  <option value="3">Wednesday</option><option value="4">Thursday</option>
+                  <option value="5">Friday</option><option value="6">Saturday</option>
+                  <option value="0">Sunday</option>
+                </select>
+              </label>
+              <label>From <input id="bStart" type="time" value="09:00" required /></label>
+              <label>To <input id="bEnd" type="time" value="11:00" required /></label>
+              <label>Subject <select id="bSubject"></select></label>
+              <label class="grow">Topic
+                <input id="bTopic" type="text" placeholder="e.g. Revise Unit 2" maxlength="80" />
+              </label>
+              <button class="btn" type="submit">Add block</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>⚡ Auto-make my weekly plan</h3>
+            <p class="muted small">Creates study blocks for every day. Subjects with nearer exams get more slots. Your pending tasks are used as topics.</p>
+            <form class="form-row" id="autoForm">
+              <label>Start time <input id="aStart" type="time" value="09:00" required /></label>
+              <label>Session (minutes) <input id="aLen" type="number" min="20" max="240" step="5" value="90" required /></label>
+              <label>Sessions / day <input id="aPer" type="number" min="1" max="6" value="3" required /></label>
+              <button class="btn" type="submit">Generate plan</button>
+              <button class="btn btn-ghost" type="button" id="clearAuto">Remove auto blocks</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Weekly timetable <span class="muted small">(repeats every week)</span></h3>
+          <div class="week-grid" id="weekGrid"></div>
+        </div>
+      </section>
+
+      <!-- ============ FOCUS TIMER ============ -->
+      <section class="view" id="view-focus">
+        <div class="card timer-card">
+          <div class="mode-switch">
+            <button class="filter-btn active" id="modeFocus">Focus</button>
+            <button class="filter-btn" id="modeBreak">Break</button>
+          </div>
+          <div class="timer-display" id="timerDisplay">25:00</div>
+          <p class="muted" id="timerLabel">Time to focus. One topic at a time.</p>
+          <div class="bar"><div class="bar-fill" id="timerBar"></div></div>
+          <div class="timer-btns">
+            <button class="btn" id="startBtn">Start</button>
+            <button class="btn btn-ghost" id="resetBtn">Reset</button>
+          </div>
+          <div class="form-row center">
+            <label>Focus (min) <input id="focusMin" type="number" min="5" max="90" value="25" /></label>
+            <label>Break (min) <input id="breakMin" type="number" min="1" max="30" value="5" /></label>
+          </div>
+          <p>Focus sessions completed today: <strong id="focusCount">0</strong></p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
